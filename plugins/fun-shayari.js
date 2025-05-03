@@ -1,11 +1,10 @@
 const { cmd } = require('../command');
 const fetch = require('node-fetch');
 const translate = require('@vitalets/google-translate-api');
-const googleTTS = require('google-tts-api');
 
 cmd({
     pattern: "shayari",
-    desc: "Get a random shayari from Shizo API",
+    desc: "Get a random shayari in Urdu",
     category: "fun",
     filename: __filename
 }, async (conn, m, msg) => {
@@ -22,23 +21,10 @@ cmd({
         const translated = await translate(englishText, { to: 'ur' });
         const urduText = translated.text;
 
-        // Generate audio of Urdu shayari
-        const audioUrl = googleTTS.getAudioUrl(urduText, {
-            lang: 'ur',
-            slow: false,
-            host: 'https://translate.google.com',
-        });
-
-        // Send both text and audio
+        // Send Urdu shayari
         await conn.sendMessage(m.chat, {
-            text: `${urduText}`,
+            text: `*اردو شاعری:*\n\n${urduText}`,
             mentions: [m.sender]
-        }, { quoted: m });
-
-        await conn.sendMessage(m.chat, {
-            audio: { url: audioUrl },
-            mimetype: 'audio/mpeg',
-            ptt: true
         }, { quoted: m });
 
     } catch (err) {
