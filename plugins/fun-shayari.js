@@ -1,6 +1,6 @@
-import fetch from 'node-fetch';
-import translate from '@vitalets/google-translate-api';
-import { cmd } from '../command';
+const fetch = require('node-fetch');
+const translate = require('@vitalets/google-translate-api');
+const { cmd } = require('../command');
 
 cmd({
   pattern: "shayari",
@@ -14,8 +14,8 @@ cmd({
   groupAdmins, isBotAdmins, isAdmins, reply
 }) => {
   try {
-    const shizokeys = 'shizo';
-    const res = await fetch(`https://shizoapi.onrender.com/api/texts/shayari?apikey=${shizokeys}`);
+    const apiKey = 'shizo';
+    const res = await fetch(`https://shizoapi.onrender.com/api/texts/shayari?apikey=${apiKey}`);
     if (!res.ok) return reply(await res.text());
 
     const json = await res.json();
@@ -23,11 +23,11 @@ cmd({
 
     const translated = await translate(hindiShayari, { to: 'ur' });
 
-    const finalText = `*${translated.text}*`;
-    await conn.sendMessage(from, { text: finalText, mentions: [sender] }, { quoted: m });
+    const urduText = `*${translated.text}*`;
+    await conn.sendMessage(from, { text: urduText, mentions: [sender] }, { quoted: m });
 
   } catch (e) {
     console.error(e);
-    return reply("کوئی خرابی ہوئی۔ دوبارہ کوشش کریں۔");
+    return reply("کچھ غلط ہو گیا، بعد میں دوبارہ کوشش کریں۔");
   }
 });
