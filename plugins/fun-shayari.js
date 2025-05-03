@@ -1,31 +1,33 @@
-const { cmd } = require('../command');
-const config = require('../config');
-const fetch = require('node-fetch');
-const translate = require('@vitalets/google-translate-api');
+import fetch from 'node-fetch';
+import translate from '@vitalets/google-translate-api';
+import { cmd } from '../command';
 
 cmd({
   pattern: "shayari",
-  desc: "Get Hindi Shayari translated into Urdu",
+  desc: "Hindi shayari translated to Urdu",
   category: "fun",
   filename: __filename
-}, async (conn, m, mData) => {
+}, async (conn, mek, m, {
+  from, quoted, body, isCmd, command, args, q, isGroup,
+  sender, senderNumber, botNumber2, botNumber, pushname,
+  isMe, isOwner, groupMetadata, groupName, participants,
+  groupAdmins, isBotAdmins, isAdmins, reply
+}) => {
   try {
-    const res = await fetch(`https://shizoapi.onrender.com/api/texts/shayari?apikey=shizo`);
-    if (!res.ok) throw await res.text();
+    const shizokeys = 'shizo';
+    const res = await fetch(`https://shizoapi.onrender.com/api/texts/shayari?apikey=${shizokeys}`);
+    if (!res.ok) return reply(await res.text());
 
     const json = await res.json();
-    const hindiText = json.result;
+    const hindiShayari = json.result;
 
-    const translated = await translate(hindiText, { to: 'ur' });
+    const translated = await translate(hindiShayari, { to: 'ur' });
 
-    const urduShayari = translated.text;
-    await conn.sendMessage(m.chat, {
-      text: urduShayari,
-      mentions: [m.sender]
-    }, { quoted: m });
+    const finalText = `*${translated.text}*`;
+    await conn.sendMessage(from, { text: finalText, mentions: [sender] }, { quoted: m });
 
-  } catch (err) {
-    console.error("Shayari Error:", err);
-    await conn.sendMessage(m.chat, { text: '❌ Shayari fetch or translation failed.' }, { quoted: m });
+  } catch (e) {
+    console.error(e);
+    return reply("کوئی خرابی ہوئی۔ دوبارہ کوشش کریں۔");
   }
 });
